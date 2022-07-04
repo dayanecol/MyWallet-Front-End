@@ -1,11 +1,12 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { ThreeDots } from "react-loader-spinner";
 
 import Button from "../shared/Button";
 import Input from "../shared/Input";
 import styled from "styled-components";
+import UserContext from "../../contexts/UserContext";
 
 export default function SignInForm(){
     const navigate = useNavigate();
@@ -13,36 +14,38 @@ export default function SignInForm(){
     let [email,setEmail] =useState("");
     let [password, setPassword] = useState("");
     const [loading,setLoading] = useState(false);
+    const { setUserData } = useContext(UserContext);
 
-    function submitData(event) {
+    async function submitData(event) {
         event.preventDefault();
 
-        const URL="http://localhost:5000/sign-in";
-        const promise = axios.post(URL, {
-            email,
-            password,
-        });
-        setLoading(true);
-        promise
-            .then(response => {
-                const {data}=response;
-                console.log(data);
-                navigate("/home");
-            })
-            .catch(err=> {
-                setEmail ="";
-                setPassword ="";
-                alert("As informações de e-mail e/ou senha estão incorretas. Insira os dados novamente ou faça o cadastro!");
-                setLoading(false);
+        try {
+            const URL="http://localhost:5000/sign-in";
+            const response = await axios.post(URL, {
+                email,
+                password,
+            });
+            setLoading(true);
+            const {name,token}=response.data;
+                setUserData({
+                    name,
+                    token
+                });
+                navigate("/home");    
+        } catch (error) {
+            setEmail ="";
+            setPassword ="";
+            alert("As informações de e-mail e/ou senha estão incorretas. Insira os dados novamente ou faça o cadastro!");
+            setLoading(false);
                     
-            }); 
+        }
     }
 
     function loadingButton(){
         return loading ? 
             (<ThreeDots color="#FFF" background-color={"#A328D6"} opacity={0.7} height={80} width={80} />)
             :
-            ("Cadastrar");
+            ("Entrar");
     }
 
     function disable(){

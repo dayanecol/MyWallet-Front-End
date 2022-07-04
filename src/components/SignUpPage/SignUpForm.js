@@ -16,32 +16,29 @@ export default function SignUpForm(){
     let [passwordAgain, setPasswordAgain] = useState("");
     const [loading,setLoading] = useState(false);
 
-    function submitData(event) {
+    async function submitData(event) {
         event.preventDefault();
+        try {
+            const URL="http://localhost:5000/sign-up";
+            await axios.post(URL, {
+                name,
+                email,
+                password,
+                passwordAgain
+            });
+            setLoading(true);
+            alert("Usuário cadastrado com sucesso!")
+            navigate("/");
+            
+        } catch (error) {
+            setName ="";
+            setEmail ="";
+            setPassword ="";
+            setPasswordAgain ="";
+            alert("Usuário cadastrado ou os dados foram preenchidos incorretamente!");
+            setLoading(false);    
+        }
 
-        const URL="http://localhost:5000/sign-up";
-        const promise = axios.post(URL, {
-            name,
-            email,
-            password,
-            passwordAgain
-        });
-        setLoading(true);
-        promise
-            .then(response => {
-                const {data}=response;
-                console.log(data);
-                navigate("/");
-            })
-            .catch(err=> {
-                setName ="";
-                setEmail ="";
-                setPassword ="";
-                setPasswordAgain ="";
-                alert("Usuário cadastrado ou os dados foram preenchidos incorretamente!");
-                setLoading(false);
-                    
-            }); 
     }
 
     function loadingButton(){
